@@ -163,7 +163,6 @@
         </plugins>
     </build>
 
-
     <developers>
         <developer>
             <id>felixklauke</id>
@@ -171,4 +170,10 @@
             <email>info@felix-klauke.de</email>
         </developer>
     </developers>
+
+    <scm>
+        <connection>scm:git:git:git@github.com:mysteryworlds/chloe.git</connection>
+        <developerConnection>scm:git:git:git@github.com:mysteryworlds/chloe.git</developerConnection>
+        <url>https://github.com/mysteryworlds/chloe</url>
+    </scm>
 </project>
