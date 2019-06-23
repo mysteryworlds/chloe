@@ -4,6 +4,7 @@ import com.mysteryworlds.chloe.bukkit.service.EconomyService;
 import com.mysteryworlds.chloe.bukkit.service.EconomyServiceImpl;
 import com.mysteryworlds.chloe.bukkit.vault.VaultEconomy;
 import net.milkbowl.vault.economy.Economy;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -29,7 +30,8 @@ public class ChloePlugin extends JavaPlugin {
     }
 
     private void setupMetrics() {
-
+        getLogger().info("Setting up Metrics.");
+        Metrics metrics = new Metrics(this);
     }
 
     @Override
