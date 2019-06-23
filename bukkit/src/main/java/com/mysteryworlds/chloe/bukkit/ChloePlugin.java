@@ -16,6 +16,8 @@ public class ChloePlugin extends JavaPlugin {
 
         economyService = new EconomyServiceImpl(null, null);
 
+        setupMetrics();
+
         // Register vault
         if (getServer().getPluginManager().isPluginEnabled("Vault")) {
 
@@ -24,6 +26,10 @@ public class ChloePlugin extends JavaPlugin {
             VaultEconomy economy = new VaultEconomy(this, economyService);
             getServer().getServicesManager().register(Economy.class, economy, this, ServicePriority.Highest);
         }
+    }
+
+    private void setupMetrics() {
+
     }
 
     @Override
