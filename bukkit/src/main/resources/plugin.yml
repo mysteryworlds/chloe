@@ -1,0 +1,27 @@
+# Name of the plugin
+name: Chloe
+
+# Current version delivered via maven
+version: ${project.version}
+
+# The main class of the plugin
+main: com.mysteryworlds.chloe.bukkit.ChloePlugin
+
+# Human readable description
+description: Simple and lightweight spigot economy plugin with support for vault accounts and banks.
+
+# Implemented against api version delivered by maven
+api-version: ${spigot.version}
+
+# Author
+author: Felix Klauke <info@felix-klauke.com>
+
+# Soft dependencies
+softdepend:
+  - Vault
+
+# The logger prefix
+prefix: Chloe
+
+# My homepage
+website: https://www.mysteryworlds.com
