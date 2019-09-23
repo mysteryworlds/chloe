@@ -28,7 +28,6 @@ notifications:
 ####################
 script:
   - mvn clean compile package install
-  - mvn verify sonar:sonar -Dsonar.host.url=https://sonar.klauke-enterprises.com -Dsonar.projectKey=chloe -Dsonar.projectName=chloe -Dsonar.login=$SONAR_TOKEN
 
 ##################
 ### Deployment ###
@@ -39,3 +38,8 @@ deploy:
   on:
     branch: master
     tags: true
+
+env:
+  global:
+    - NEXUS_USERNAME=deploy
+    - secure: "FvBs5nwE1ot5fx1BZU7jG0r7ajLbvPuK3KM3qzksIw0Qcvl3OTk5tS55dXIATrO1eKsy95WVsJyu7i6YY2p47G+BHjB6e0uRtRmSsIcfLAlkx6YfzcxeZLB5jx9SLSiMkXGLpkLjYr2RVGdWT8t1KjHkwoaaMlcxX3qFJ/I8whKtFx9y+l3BUnwRHDioAqdVboDSLd4Et5nIDnj9jp8Q5HR0P87gSdCaKhO+Wp819kKput6DtjTqk4ulVfIRSpc+VRKn7X4azNf30e9rkizrCCcWg+3JOUw1mwMCrSb7ZHFGj/3JO3IuO8McycmsQKs0FWtUaMFdxwVRGM5Jszww77AR+f89L6tTJ5vdvvIIUQzQD+4Qza/fmgkrylLsd9KEezoM1oWu4y91+e0W0gCuXnvaC0hi0eDXr1zN8XGMLg4mevKJnEpbCizlmybDmGrqllrHdCPVZqRdl2LWZVcDJY+5+fpXVOH8AF/rvUEvfAp8YK/XgJ2S+wQvEIJR/GhE6sOGn9/w9NJnpwTTf5YXqiElK9ELsZ73Q4pjNNy/uyzrbaizLmtF8UY+3Csruq6JjpsaKTjAN4aq8os/J+UhNacR0XPWaJ+OFd2T31404apK3cPmxCWoryACVUp1wVBPI4Sw8R/dqEmHxO1TcD3vfr0AFNWavv/gdErX2M/bH88="
