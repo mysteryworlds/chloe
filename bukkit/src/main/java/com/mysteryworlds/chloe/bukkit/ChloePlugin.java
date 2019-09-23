@@ -22,7 +22,7 @@ public class ChloePlugin extends JavaPlugin {
         if (vaultEnabled) {
             getLogger().info("Vault found. Hooking into vault Economy API.");
 
-            VaultEconomy economy = new VaultEconomy(this);
+            VaultEconomy economy = new VaultEconomy(this, null, null, null);
             servicesManager.register(Economy.class, economy, this, ServicePriority.Highest);
         }
     }
