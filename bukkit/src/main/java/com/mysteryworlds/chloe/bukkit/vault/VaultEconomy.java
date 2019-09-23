@@ -1,22 +1,17 @@
 package com.mysteryworlds.chloe.bukkit.vault;
 
-import com.mysteryworlds.chloe.bukkit.service.EconomyService;
+import java.util.List;
 import net.milkbowl.vault.economy.AbstractEconomy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.plugin.Plugin;
-
-import java.util.List;
 
 public class VaultEconomy extends AbstractEconomy {
 
     private static final boolean BANK_SUPPORT = true;
     private final Plugin plugin;
 
-    private final EconomyService economyService;
-
-    public VaultEconomy(Plugin plugin, EconomyService economyService) {
+    public VaultEconomy(Plugin plugin) {
         this.plugin = plugin;
-        this.economyService = economyService;
     }
 
     @Override

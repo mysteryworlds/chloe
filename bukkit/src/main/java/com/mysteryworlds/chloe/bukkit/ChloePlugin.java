@@ -1,7 +1,5 @@
 package com.mysteryworlds.chloe.bukkit;
 
-import com.mysteryworlds.chloe.bukkit.service.EconomyService;
-import com.mysteryworlds.chloe.bukkit.service.EconomyServiceImpl;
 import com.mysteryworlds.chloe.bukkit.vault.VaultEconomy;
 import net.milkbowl.vault.economy.Economy;
 import org.bstats.bukkit.Metrics;
@@ -12,15 +10,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class ChloePlugin extends JavaPlugin {
 
-    private EconomyService economyService;
-
     @Override
     public void onEnable() {
 
         PluginManager pluginManager = getServer().getPluginManager();
         ServicesManager servicesManager = getServer().getServicesManager();
-
-        economyService = new EconomyServiceImpl(null, null);
 
         setupMetrics();
 
@@ -29,7 +23,7 @@ public class ChloePlugin extends JavaPlugin {
 
             getLogger().info("Vault found. Hooking into vault Economy API.");
 
-            VaultEconomy economy = new VaultEconomy(this, economyService);
+            VaultEconomy economy = new VaultEconomy(this);
             servicesManager.register(Economy.class, economy, this, ServicePriority.Highest);
         }
     }
