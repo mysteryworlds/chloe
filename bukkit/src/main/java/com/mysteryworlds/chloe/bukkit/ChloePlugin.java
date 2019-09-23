@@ -12,15 +12,14 @@ public class ChloePlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-
         PluginManager pluginManager = getServer().getPluginManager();
         ServicesManager servicesManager = getServer().getServicesManager();
 
         setupMetrics();
 
         // Register vault
-        if (pluginManager.isPluginEnabled("Vault")) {
-
+        boolean vaultEnabled = pluginManager.isPluginEnabled("Vault");
+        if (vaultEnabled) {
             getLogger().info("Vault found. Hooking into vault Economy API.");
 
             VaultEconomy economy = new VaultEconomy(this);
