@@ -1,104 +1,119 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>chloe-parent</artifactId>
-        <groupId>com.mysteryworlds.chloe</groupId>
-        <version>1.0.0-SNAPSHOT</version>
-    </parent>
-    <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <artifactId>chloe-parent</artifactId>
+    <groupId>com.mysteryworlds.chloe</groupId>
+    <version>1.0.0-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>chloe-bukkit</artifactId>
+  <artifactId>chloe-bukkit</artifactId>
 
-    <properties>
-        <spigot.version>1.14.2-R0.1-SNAPSHOT</spigot.version>
-    </properties>
+  <properties>
+    <spigot.version>1.14.2-R0.1-SNAPSHOT</spigot.version>
+  </properties>
 
-    <repositories>
-        <!-- Spigot -->
-        <repository>
-            <id>spigot-repo</id>
-            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
-        </repository>
+  <repositories>
+    <!-- Spigot -->
+    <repository>
+      <id>spigot-repo</id>
+      <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+    </repository>
 
-        <!-- Jitpack -->
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
+    <!-- Jitpack -->
+    <repository>
+      <id>jitpack.io</id>
+      <url>https://jitpack.io</url>
+    </repository>
 
-        <!-- CodeMC -->
-        <repository>
-            <id>CodeMC</id>
-            <url>https://repo.codemc.org/repository/maven-public/</url>
-        </repository>
-    </repositories>
+    <!-- CodeMC -->
+    <repository>
+      <id>CodeMC</id>
+      <url>https://repo.codemc.org/repository/maven-public/</url>
+    </repository>
 
-    <dependencies>
+    <!-- Klauke Enterprises Releases -->
+    <repository>
+      <id>klauke-enterprises-maven-releases</id>
+      <name>Klauke Enterprises Maven Releases</name>
+      <url>https://repository.klauke-enterprises.com/repository/maven-releases/</url>
+    </repository>
+  </repositories>
 
-        <!-- Spigot API -->
-        <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-api</artifactId>
-            <version>${spigot.version}</version>
-            <scope>provided</scope>
-        </dependency>
+  <dependencies>
 
-        <!-- Vault -->
-        <dependency>
-            <groupId>com.github.MilkBowl</groupId>
-            <artifactId>VaultAPI</artifactId>
-            <version>1.7</version>
-            <scope>provided</scope>
-        </dependency>
+    <!-- Spigot API -->
+    <dependency>
+      <groupId>org.spigotmc</groupId>
+      <artifactId>spigot-api</artifactId>
+      <version>${spigot.version}</version>
+      <scope>provided</scope>
+    </dependency>
 
-        <!-- bStats -->
-        <dependency>
-            <groupId>org.bstats</groupId>
-            <artifactId>bstats-bukkit</artifactId>
-            <version>1.5</version>
-            <scope>compile</scope>
-        </dependency>
-    </dependencies>
+    <!-- Vault -->
+    <dependency>
+      <groupId>com.github.MilkBowl</groupId>
+      <artifactId>VaultAPI</artifactId>
+      <version>1.7</version>
+      <scope>provided</scope>
+    </dependency>
 
-    <build>
-        <resources>
-            <resource>
-                <filtering>true</filtering>
-                <directory>${basedir}/src/main/resources/</directory>
-                <includes>
-                    <include>plugin.yml</include>
-                </includes>
-            </resource>
-        </resources>
+    <!-- bStats -->
+    <dependency>
+      <groupId>org.bstats</groupId>
+      <artifactId>bstats-bukkit</artifactId>
+      <version>1.5</version>
+      <scope>compile</scope>
+    </dependency>
 
-        <plugins>
-            <!-- Maven shading -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.1</version>
-                <configuration>
-                    <relocations>
-                        <relocation>
-                            <pattern>org.bstats</pattern>
-                            <shadedPattern>de.felixklauke.chiara.bukkit</shadedPattern>
-                        </relocation>
-                    </relocations>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <createDependencyReducedPom>false</createDependencyReducedPom>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+    <!-- Theresa -->
+    <dependency>
+      <groupId>de.d3adspace.theresa</groupId>
+      <artifactId>theresa-core</artifactId>
+      <version>2.0.1</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <resources>
+      <resource>
+        <filtering>true</filtering>
+        <directory>${basedir}/src/main/resources/</directory>
+        <includes>
+          <include>plugin.yml</include>
+        </includes>
+      </resource>
+    </resources>
+
+    <plugins>
+      <!-- Maven shading -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.2.1</version>
+        <configuration>
+          <relocations>
+            <relocation>
+              <pattern>org.bstats</pattern>
+              <shadedPattern>de.felixklauke.chloe.bukkit</shadedPattern>
+            </relocation>
+          </relocations>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <createDependencyReducedPom>false</createDependencyReducedPom>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>

@@ -1,6 +1,10 @@
 package com.mysteryworlds.chloe.bukkit;
 
-import com.mysteryworlds.chloe.bukkit.vault.VaultEconomy;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.mysteryworlds.chloe.bukkit.module.ChloeModule;
+import de.d3adspace.theresa.core.TheresaFactory;
+import javax.inject.Inject;
 import net.milkbowl.vault.economy.Economy;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.plugin.PluginManager;
@@ -10,31 +14,38 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class ChloePlugin extends JavaPlugin {
 
-    @Override
-    public void onEnable() {
-        PluginManager pluginManager = getServer().getPluginManager();
-        ServicesManager servicesManager = getServer().getServicesManager();
+  @Inject
+  private ServicesManager servicesManager;
+  @Inject
+  private PluginManager pluginManager;
+  @Inject
+  private Economy economy;
 
-        setupMetrics();
+  @Override
+  public void onEnable() {
 
-        // Register vault
-        boolean vaultEnabled = pluginManager.isPluginEnabled("Vault");
-        if (vaultEnabled) {
-            getLogger().info("Vault found. Hooking into vault Economy API.");
+    ChloeModule injectionModule = ChloeModule.withPlugin(this);
+    Injector injector = TheresaFactory.create(injectionModule);
+    injector.injectMembers(this);
 
-            VaultEconomy economy = new VaultEconomy(this, null, null, null);
-            servicesManager.register(Economy.class, economy, this, ServicePriority.Highest);
-        }
+    setupMetrics();
+
+    // Register vault
+    boolean vaultEnabled = pluginManager.isPluginEnabled("Vault");
+    if (vaultEnabled) {
+      getLogger().info("Vault found. Hooking into vault Economy API.");
+
+      servicesManager.register(Economy.class, economy, this, ServicePriority.Highest);
     }
+  }
 
-    private void setupMetrics() {
-        getLogger().info("Setting up Metrics.");
-        Metrics metrics = new Metrics(this);
-    }
+  private void setupMetrics() {
+    getLogger().info("Setting up Metrics.");
+    Metrics metrics = new Metrics(this);
+  }
 
-    @Override
-    public void onDisable() {
+  @Override
+  public void onDisable() {
 
-
-    }
+  }
 }

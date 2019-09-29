@@ -1,196 +1,248 @@
 package com.mysteryworlds.chloe.bukkit.vault;
 
+import com.google.common.base.Preconditions;
 import com.mysteryworlds.chloe.bukkit.bank.EconomyBank;
 import com.mysteryworlds.chloe.bukkit.bank.EconomyBankRepository;
 import com.mysteryworlds.chloe.bukkit.user.EconomyUser;
 import com.mysteryworlds.chloe.bukkit.user.EconomyUserFactory;
 import com.mysteryworlds.chloe.bukkit.user.EconomyUserRepository;
 import java.util.List;
-import java.util.UUID;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import net.milkbowl.vault.economy.AbstractEconomy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import net.milkbowl.vault.economy.EconomyResponse.ResponseType;
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.Plugin;
 
+@Singleton
 public class VaultEconomy extends AbstractEconomy {
 
-    private static final boolean BANK_SUPPORT = true;
-    private final Plugin plugin;
+  private static final String ERROR_ACCOUNT_NOT_FOUND = "Couldn't find account";
+  private static final String ERROR_NEGATIVE_FUNDS = "Cannot withdraw negative funds";
+  private static final String ERROR_INSUFFICIENT_FUNDS = "Insufficient funds";
 
-    private final EconomyBankRepository bankRepository;
-    private final EconomyUserFactory economyUserFactory;
-    private final EconomyUserRepository userRepository;
+  private static final boolean BANK_SUPPORT = true;
+  private final Plugin plugin;
 
-    public VaultEconomy(Plugin plugin,
-        EconomyBankRepository bankRepository,
-        EconomyUserFactory economyUserFactory,
-        EconomyUserRepository userRepository) {
-        this.plugin = plugin;
-        this.bankRepository = bankRepository;
-        this.economyUserFactory = economyUserFactory;
-        this.userRepository = userRepository;
+  private final String currencyNameSingular;
+  private final String currencyNamePlural;
+
+  private final EconomyBankRepository bankRepository;
+  private final EconomyUserFactory economyUserFactory;
+  private final EconomyUserRepository userRepository;
+
+  @Inject
+  public VaultEconomy(Plugin plugin,
+      @Named("currencyNameSingular") String currencyNameSingular,
+      @Named("currencyNamePlural") String currencyNamePlural, EconomyBankRepository bankRepository,
+      EconomyUserFactory economyUserFactory,
+      EconomyUserRepository userRepository) {
+    this.plugin = plugin;
+    this.currencyNameSingular = currencyNameSingular;
+    this.currencyNamePlural = currencyNamePlural;
+    this.bankRepository = bankRepository;
+    this.economyUserFactory = economyUserFactory;
+    this.userRepository = userRepository;
+  }
+
+  @Override
+  public boolean isEnabled() {
+
+    return plugin.isEnabled();
+  }
+
+  @Override
+  public String getName() {
+
+    return plugin.getName();
+  }
+
+  @Override
+  public boolean hasBankSupport() {
+
+    return BANK_SUPPORT;
+  }
+
+  @Override
+  public int fractionalDigits() {
+    return 2;
+  }
+
+  @Override
+  public String format(double amount) {
+    if (amount == 1.0) {
+      return String.format("%f %s", amount, currencyNameSingular());
     }
 
-    @Override
-    public boolean isEnabled() {
+    return String.format("%f %s", amount, currencyNamePlural());
+  }
 
-        return plugin.isEnabled();
+  @Override
+  public String currencyNamePlural() {
+    return currencyNamePlural;
+  }
+
+  @Override
+  public String currencyNameSingular() {
+    return currencyNameSingular;
+  }
+
+  @Override
+  public boolean hasAccount(String playerName) {
+    Preconditions.checkNotNull(playerName, "Player name should not be null");
+
+    return userRepository.findUserByName(playerName).isPresent();
+  }
+
+  @Override
+  public boolean hasAccount(String playerName, String worldName) {
+    return false;
+  }
+
+  @Override
+  public double getBalance(String playerName) {
+    Preconditions.checkNotNull(playerName, "Player name should not be null");
+
+    Optional<EconomyUser> userOptional = userRepository.findUserByName(playerName);
+    return userOptional.map(EconomyUser::getBalance).orElse(-1D);
+  }
+
+  @Override
+  public double getBalance(String playerName, String world) {
+    return -1D;
+  }
+
+  @Override
+  public boolean has(String playerName, double amount) {
+    Preconditions.checkNotNull(playerName, "Player name should not be null");
+
+    Optional<EconomyUser> userOptional = userRepository.findUserByName(playerName);
+    return userOptional.map(user -> user.hasBalance(amount)).orElse(false);
+  }
+
+  @Override
+  public boolean has(String playerName, String worldName, double amount) {
+    return false;
+  }
+
+  @Override
+  public EconomyResponse withdrawPlayer(String playerName, double amount) {
+    Preconditions.checkNotNull(playerName, "Player name should not be null");
+
+    if (amount < 0) {
+      return new EconomyResponse(0, 0, ResponseType.FAILURE, ERROR_NEGATIVE_FUNDS);
     }
 
-    @Override
-    public String getName() {
-
-        return plugin.getName();
+    Optional<EconomyUser> economyUserOptional = userRepository.findUserByName(playerName);
+    if (economyUserOptional.isEmpty()) {
+      return new EconomyResponse(0, 0, ResponseType.FAILURE, ERROR_ACCOUNT_NOT_FOUND);
     }
 
-    @Override
-    public boolean hasBankSupport() {
+    EconomyUser economyUser = economyUserOptional.get();
 
-        return BANK_SUPPORT;
+    if (!economyUser.hasBalance(amount)) {
+      double balance = economyUser.getBalance();
+      return new EconomyResponse(0, balance, ResponseType.FAILURE, ERROR_INSUFFICIENT_FUNDS);
     }
 
-    @Override
-    public int fractionalDigits() {
+    double newBalance = economyUser.subtractBalance(amount);
+    return new EconomyResponse(amount, newBalance, ResponseType.SUCCESS, "");
+  }
 
-        return 2;
+  @Override
+  public EconomyResponse withdrawPlayer(String playerName, String worldName, double amount) {
+    return new EconomyResponse(0, 0, ResponseType.NOT_IMPLEMENTED,
+        "World specific economy isn't supported");
+  }
+
+  @Override
+  public EconomyResponse depositPlayer(String playerName, double amount) {
+    Preconditions.checkNotNull(playerName, "Player name should not be null");
+
+    if (amount < 0) {
+      return new EconomyResponse(0, 0, ResponseType.FAILURE, ERROR_NEGATIVE_FUNDS);
     }
 
-    @Override
-    public String format(double amount) {
-        return null;
+    Optional<EconomyUser> economyUserOptional = userRepository.findUserByName(playerName);
+    if (economyUserOptional.isEmpty()) {
+      return new EconomyResponse(0, 0, ResponseType.FAILURE, ERROR_ACCOUNT_NOT_FOUND);
     }
 
-    @Override
-    public String currencyNamePlural() {
+    EconomyUser economyUser = economyUserOptional.get();
+    double newBalance = economyUser.addBalance(amount);
 
-        return null;
-    }
+    return new EconomyResponse(amount, newBalance, ResponseType.SUCCESS, "");
+  }
 
-    @Override
-    public String currencyNameSingular() {
-        return null;
-    }
+  @Override
+  public EconomyResponse depositPlayer(String playerName, String worldName, double amount) {
+    return new EconomyResponse(0, 0, ResponseType.NOT_IMPLEMENTED,
+        "World specific economy isn't supported");
+  }
 
-    @Override
-    public boolean hasAccount(String playerName) {
+  @Override
+  public EconomyResponse createBank(String name, String player) {
+    return null;
+  }
 
-        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(playerName);
-        UUID uniqueId = offlinePlayer.getUniqueId();
-        return userRepository.findUser(uniqueId).isPresent();
-    }
+  @Override
+  public EconomyResponse deleteBank(String name) {
+    return null;
+  }
 
-    @Override
-    public boolean hasAccount(String playerName, String worldName) {
-        return false;
-    }
+  @Override
+  public EconomyResponse bankBalance(String name) {
+    return null;
+  }
 
-    @Override
-    public double getBalance(String playerName) {
+  @Override
+  public EconomyResponse bankHas(String name, double amount) {
+    return null;
+  }
 
+  @Override
+  public EconomyResponse bankWithdraw(String name, double amount) {
+    return null;
+  }
 
-        return 0;
-    }
+  @Override
+  public EconomyResponse bankDeposit(String name, double amount) {
+    return null;
+  }
 
-    @Override
-    public double getBalance(String playerName, String world) {
-        return 0;
-    }
+  @Override
+  public EconomyResponse isBankOwner(String name, String playerName) {
+    return null;
+  }
 
-    @Override
-    public boolean has(String playerName, double amount) {
-        return false;
-    }
+  @Override
+  public EconomyResponse isBankMember(String name, String playerName) {
+    return null;
+  }
 
-    @Override
-    public boolean has(String playerName, String worldName, double amount) {
-        return false;
-    }
+  @Override
+  public List<String> getBanks() {
 
-    @Override
-    public EconomyResponse withdrawPlayer(String playerName, double amount) {
-        return null;
-    }
+    return bankRepository.findAll().stream()
+        .map(EconomyBank::getName)
+        .collect(Collectors.toList());
+  }
 
-    @Override
-    public EconomyResponse withdrawPlayer(String playerName, String worldName, double amount) {
-        return new EconomyResponse(0, 0, ResponseType.NOT_IMPLEMENTED, "World specific economy isn't supported");
-    }
+  @Override
+  public boolean createPlayerAccount(String playerName) {
 
-    @Override
-    public EconomyResponse depositPlayer(String playerName, double amount) {
-        return null;
-    }
+    EconomyUser user = economyUserFactory.createUser(playerName);
+    userRepository.save(user);
 
-    @Override
-    public EconomyResponse depositPlayer(String playerName, String worldName, double amount) {
-        return new EconomyResponse(0, 0, ResponseType.NOT_IMPLEMENTED, "World specific economy isn't supported");
-    }
+    return true;
+  }
 
-    @Override
-    public EconomyResponse createBank(String name, String player) {
-        return null;
-    }
+  @Override
+  public boolean createPlayerAccount(String playerName, String worldName) {
 
-    @Override
-    public EconomyResponse deleteBank(String name) {
-        return null;
-    }
-
-    @Override
-    public EconomyResponse bankBalance(String name) {
-        return null;
-    }
-
-    @Override
-    public EconomyResponse bankHas(String name, double amount) {
-        return null;
-    }
-
-    @Override
-    public EconomyResponse bankWithdraw(String name, double amount) {
-        return null;
-    }
-
-    @Override
-    public EconomyResponse bankDeposit(String name, double amount) {
-        return null;
-    }
-
-    @Override
-    public EconomyResponse isBankOwner(String name, String playerName) {
-        return null;
-    }
-
-    @Override
-    public EconomyResponse isBankMember(String name, String playerName) {
-        return null;
-    }
-
-    @Override
-    public List<String> getBanks() {
-
-        return bankRepository.findAll().stream()
-            .map(EconomyBank::getName)
-            .collect(Collectors.toList());
-    }
-
-    @Override
-    public boolean createPlayerAccount(String playerName) {
-
-        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(playerName);
-        UUID uniqueId = offlinePlayer.getUniqueId();
-        EconomyUser user = economyUserFactory.createUser(uniqueId);
-        userRepository.save(user);
-
-        return true;
-    }
-
-    @Override
-    public boolean createPlayerAccount(String playerName, String worldName) {
-
-        return false;
-    }
+    return false;
+  }
 }

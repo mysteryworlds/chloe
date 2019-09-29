@@ -8,4 +8,6 @@ public interface EconomyUserRepository {
   void save(EconomyUser user);
 
   Optional<EconomyUser> findUser(UUID uniqueId);
+
+  Optional<EconomyUser> findUserByName(String playerName);
 }
