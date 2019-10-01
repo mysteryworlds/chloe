@@ -27,6 +27,12 @@ public class ChloeModule extends AbstractModule {
     this.configuration = configuration;
   }
 
+  /**
+   * Create a new chloe module.
+   *
+   * @param chloePlugin The chloe plugin.
+   * @return The module.
+   */
   public static ChloeModule withPlugin(ChloePlugin chloePlugin) {
     Preconditions.checkNotNull(chloePlugin, "Chloe plugin should not be null");
 

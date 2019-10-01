@@ -34,6 +34,16 @@ public class VaultEconomy extends AbstractEconomy {
   private final EconomyUserFactory economyUserFactory;
   private final EconomyUserRepository userRepository;
 
+  /**
+   * Create a new vault economy instance.
+   *
+   * @param plugin The chloe plugin.
+   * @param currencyNameSingular The singular name of the currency.
+   * @param currencyNamePlural The plural name of the currency.
+   * @param bankRepository The bank repository.
+   * @param economyUserFactory The user factory.
+   * @param userRepository The user repository.
+   */
   @Inject
   public VaultEconomy(Plugin plugin,
       @Named("currencyNameSingular") String currencyNameSingular,
