@@ -17,6 +17,15 @@ cache:
     - '$HOME/.m2/repository'
     - '$HOME/.sonar/cache'
 
+#############
+### Sonar ###
+#############
+addons:
+  sonarcloud:
+    organization: "mysteryworlds"
+    token:
+      secure: b1QCqukyPPRJrL1XUGI/Fl7aNN8+7DF41Sl9RZZCQTN4VY8p6Yd16UelmLVJbpkVwOkFwMvgounRRLREpC18XO4+QK2p8G6pPVsgT3GWK7lUA4MRClmFyQD+67W4S+m30iJzvjn8qb6ieHAFix10ErA3PqhLi9/rUk99ARcvx9ppT+t/vGLaJOEfIJJLwYCqReTwdc1uTqKaZTy3MpxBAJBi7NyXgE6h93EzyXQRWxFyg6wVeecFOMHlGTXDDD/ilsm4IpToEosk9zdkTJrHH2tCeZNyxu01FN44n7bT6p2vWAAHPlWnfcA6I2hBkHYjerJ0C4vM0coO6E/ycR9qCJ+3qBSLBt+kvv4vMv/HXFR/FICPuxAsoGN1cycosxk1ZAzTuaQw0rgk6enNEeq1l4fRa3arQenhOHubL21c6MOBw2751ZUulxE/QSoNjLe7BjWJDwJQ9DDHkSpknu+JCWkleN4bZb6+H8sT+7tLqH0ODOic7qx0mgckyV+evOFJO0vM+2q7ITfqMR9akNtRsSjYKaGDPuF9dWwRpTt7kjVRTkzolwMMGJWingNtqRNkJqN7PNYBXPM1NIQsOHLd7QEE78Biqx1NKAED0QjafZz64i7EOgwrwxItTKxlPMig1b8qLzcNtoY8SAnk/0f7K0xUtwPxaIAi6pnJMQpi8LY=
+
 #####################
 ### Notifications ###
 #####################
@@ -28,6 +37,7 @@ notifications:
 ####################
 script:
   - mvn clean install
+  - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar -Dsonar.projectKey=mysteryworlds_chloe
 
 ##################
 ### Deployment ###
