@@ -37,19 +37,21 @@ public class VaultEconomy extends AbstractEconomy {
   /**
    * Create a new vault economy instance.
    *
-   * @param plugin The chloe plugin.
+   * @param plugin               The chloe plugin.
    * @param currencyNameSingular The singular name of the currency.
-   * @param currencyNamePlural The plural name of the currency.
-   * @param bankRepository The bank repository.
-   * @param economyUserFactory The user factory.
-   * @param userRepository The user repository.
+   * @param currencyNamePlural   The plural name of the currency.
+   * @param bankRepository       The bank repository.
+   * @param economyUserFactory   The user factory.
+   * @param userRepository       The user repository.
    */
   @Inject
   public VaultEconomy(Plugin plugin,
-      @Named("currencyNameSingular") String currencyNameSingular,
-      @Named("currencyNamePlural") String currencyNamePlural, EconomyBankRepository bankRepository,
-      EconomyUserFactory economyUserFactory,
-      EconomyUserRepository userRepository) {
+    @Named("currencyNameSingular") String currencyNameSingular,
+    @Named("currencyNamePlural") String currencyNamePlural,
+    EconomyBankRepository bankRepository,
+    EconomyUserFactory economyUserFactory,
+    EconomyUserRepository userRepository
+  ) {
     this.plugin = plugin;
     this.currencyNameSingular = currencyNameSingular;
     this.currencyNamePlural = currencyNamePlural;
@@ -60,25 +62,24 @@ public class VaultEconomy extends AbstractEconomy {
 
   @Override
   public boolean isEnabled() {
-
     return plugin.isEnabled();
   }
 
   @Override
   public String getName() {
-
     return plugin.getName();
   }
 
   @Override
   public boolean hasBankSupport() {
-
     return BANK_SUPPORT;
   }
 
+  private static final int FRACTIONAL_DIGITS = 2;
+
   @Override
   public int fractionalDigits() {
-    return 2;
+    return FRACTIONAL_DIGITS;
   }
 
   @Override
@@ -86,7 +87,6 @@ public class VaultEconomy extends AbstractEconomy {
     if (amount == 1.0) {
       return String.format("%f %s", amount, currencyNameSingular());
     }
-
     return String.format("%f %s", amount, currencyNamePlural());
   }
 
@@ -103,33 +103,32 @@ public class VaultEconomy extends AbstractEconomy {
   @Override
   public boolean hasAccount(String playerName) {
     Preconditions.checkNotNull(playerName, "Player name should not be null");
-
     return userRepository.findUserByName(playerName).isPresent();
   }
 
   @Override
   public boolean hasAccount(String playerName, String worldName) {
-    return false;
+    return hasAccount(playerName);
   }
 
   @Override
   public double getBalance(String playerName) {
     Preconditions.checkNotNull(playerName, "Player name should not be null");
-
-    Optional<EconomyUser> userOptional = userRepository.findUserByName(playerName);
+    var userOptional = userRepository.findUserByName(playerName);
     return userOptional.map(EconomyUser::getBalance).orElse(-1D);
   }
 
   @Override
   public double getBalance(String playerName, String world) {
-    return -1D;
+    return getBalance(playerName);
   }
 
   @Override
   public boolean has(String playerName, double amount) {
     Preconditions.checkNotNull(playerName, "Player name should not be null");
 
-    Optional<EconomyUser> userOptional = userRepository.findUserByName(playerName);
+    Optional<EconomyUser> userOptional = userRepository.findUserByName(
+      playerName);
     return userOptional.map(user -> user.hasBalance(amount)).orElse(false);
   }
 
@@ -143,29 +142,33 @@ public class VaultEconomy extends AbstractEconomy {
     Preconditions.checkNotNull(playerName, "Player name should not be null");
 
     if (amount < 0) {
-      return new EconomyResponse(0, 0, ResponseType.FAILURE, ERROR_NEGATIVE_FUNDS);
+      return new EconomyResponse(0, 0, ResponseType.FAILURE,
+        ERROR_NEGATIVE_FUNDS);
     }
 
-    Optional<EconomyUser> economyUserOptional = userRepository.findUserByName(playerName);
+    var economyUserOptional = userRepository.findUserByName(playerName);
     if (economyUserOptional.isEmpty()) {
-      return new EconomyResponse(0, 0, ResponseType.FAILURE, ERROR_ACCOUNT_NOT_FOUND);
+      return new EconomyResponse(0, 0, ResponseType.FAILURE,
+        ERROR_ACCOUNT_NOT_FOUND);
     }
 
-    EconomyUser economyUser = economyUserOptional.get();
+    var economyUser = economyUserOptional.get();
 
     if (!economyUser.hasBalance(amount)) {
-      double balance = economyUser.getBalance();
-      return new EconomyResponse(0, balance, ResponseType.FAILURE, ERROR_INSUFFICIENT_FUNDS);
+      var balance = economyUser.getBalance();
+      return new EconomyResponse(0, balance, ResponseType.FAILURE,
+        ERROR_INSUFFICIENT_FUNDS);
     }
 
-    double newBalance = economyUser.subtractBalance(amount);
+    var newBalance = economyUser.subtractBalance(amount);
     return new EconomyResponse(amount, newBalance, ResponseType.SUCCESS, "");
   }
 
   @Override
-  public EconomyResponse withdrawPlayer(String playerName, String worldName, double amount) {
+  public EconomyResponse withdrawPlayer(String playerName, String worldName,
+    double amount) {
     return new EconomyResponse(0, 0, ResponseType.NOT_IMPLEMENTED,
-        "World specific economy isn't supported");
+      "World specific economy isn't supported");
   }
 
   @Override
@@ -173,12 +176,15 @@ public class VaultEconomy extends AbstractEconomy {
     Preconditions.checkNotNull(playerName, "Player name should not be null");
 
     if (amount < 0) {
-      return new EconomyResponse(0, 0, ResponseType.FAILURE, ERROR_NEGATIVE_FUNDS);
+      return new EconomyResponse(0, 0, ResponseType.FAILURE,
+        ERROR_NEGATIVE_FUNDS);
     }
 
-    Optional<EconomyUser> economyUserOptional = userRepository.findUserByName(playerName);
+    Optional<EconomyUser> economyUserOptional = userRepository.findUserByName(
+      playerName);
     if (economyUserOptional.isEmpty()) {
-      return new EconomyResponse(0, 0, ResponseType.FAILURE, ERROR_ACCOUNT_NOT_FOUND);
+      return new EconomyResponse(0, 0, ResponseType.FAILURE,
+        ERROR_ACCOUNT_NOT_FOUND);
     }
 
     EconomyUser economyUser = economyUserOptional.get();
@@ -188,9 +194,10 @@ public class VaultEconomy extends AbstractEconomy {
   }
 
   @Override
-  public EconomyResponse depositPlayer(String playerName, String worldName, double amount) {
+  public EconomyResponse depositPlayer(String playerName, String worldName,
+    double amount) {
     return new EconomyResponse(0, 0, ResponseType.NOT_IMPLEMENTED,
-        "World specific economy isn't supported");
+      "World specific economy isn't supported");
   }
 
   @Override
@@ -237,8 +244,8 @@ public class VaultEconomy extends AbstractEconomy {
   public List<String> getBanks() {
 
     return bankRepository.findAll().stream()
-        .map(EconomyBank::getName)
-        .collect(Collectors.toList());
+      .map(EconomyBank::getName)
+      .collect(Collectors.toList());
   }
 
   @Override

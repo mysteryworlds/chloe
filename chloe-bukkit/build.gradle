@@ -1,0 +1,69 @@
+plugins {
+  id 'java'
+}
+
+group 'com.mysteryworlds'
+version '2.0.0'
+
+sourceCompatibility = '16'
+targetCompatibility = '16'
+
+repositories {
+  mavenCentral()
+  mavenLocal()
+  maven {
+    name 'Jitpack'
+    description 'Jitpack'
+    url 'https://jitpack.io'
+  }
+  maven {
+    name 'Sonatype Snapshots'
+    description 'Sonatype Snapshots'
+    url 'https://oss.sonatype.org/content/repositories/snapshots'
+  }
+  maven {
+    name 'Sonatype Central'
+    description 'Sonatype Central'
+    url 'https://oss.sonatype.org/content/repositories/central'
+  }
+  maven {
+    name 'Spigot'
+    description 'SpigotMC.org'
+    url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+    content {
+      includeGroup 'org.bukkit'
+      includeGroup 'org.spigotmc'
+    }
+  }
+  maven {
+    name 'D3adpsace Theresa GitHub Package Registry'
+    description 'D3adpsace Theresa GitHub Package Registry'
+    url 'https://maven.pkg.github.com/d3adspace/theresa'
+    credentials {
+      username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_ACTOR")
+      password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN")
+    }
+  }
+}
+
+dependencies {
+  implementation 'de.d3adspace:theresa-core:3.4.0'
+  implementation 'com.github.milkbowl:vaultapi:1.7'
+  implementation 'org.bstats:bstats-bukkit:2.2.1'
+  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+}
+
+test {
+  useJUnitPlatform()
+}
+
+java {
+  withJavadocJar()
+  withSourcesJar()
+}
+
+jar {
+  exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA', 'META-INF/*.MF'
+  configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
+}

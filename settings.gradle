@@ -1,0 +1,3 @@
+rootProject.name = 'chloe'
+
+include 'chloe-bukkit'

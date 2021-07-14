@@ -1,9 +1,7 @@
 package com.mysteryworlds.chloe.bukkit;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import com.mysteryworlds.chloe.bukkit.module.ChloeModule;
-import de.d3adspace.theresa.core.TheresaFactory;
+import de.d3adspace.theresa.TheresaFactory;
 import javax.inject.Inject;
 import net.milkbowl.vault.economy.Economy;
 import org.bstats.bukkit.Metrics;
@@ -23,9 +21,8 @@ public class ChloePlugin extends JavaPlugin {
 
   @Override
   public void onEnable() {
-
-    ChloeModule injectionModule = ChloeModule.withPlugin(this);
-    Injector injector = TheresaFactory.create(injectionModule);
+    var injectionModule = ChloeModule.withPlugin(this);
+    var injector = TheresaFactory.create(injectionModule);
     injector.injectMembers(this);
 
     setupMetrics();
@@ -35,13 +32,14 @@ public class ChloePlugin extends JavaPlugin {
     if (vaultEnabled) {
       getLogger().info("Vault found. Hooking into vault Economy API.");
 
-      servicesManager.register(Economy.class, economy, this, ServicePriority.Highest);
+      servicesManager.register(Economy.class, economy, this,
+        ServicePriority.Highest);
     }
   }
 
   private void setupMetrics() {
     getLogger().info("Setting up Metrics.");
-    Metrics metrics = new Metrics(this);
+    Metrics metrics = new Metrics(this, 12047);
   }
 
   @Override
